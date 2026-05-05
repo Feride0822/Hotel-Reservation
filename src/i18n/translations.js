@@ -15,6 +15,26 @@ export const translations = {
       adminDashboard: 'Admin Dashboard',
       userDashboard: 'User Dashboard',
     },
+    // Footer
+    footer: {
+tagline: 'Your trusted partner for finding and booking the perfect accommodations worldwide.',
+      company: 'Company',
+      aboutUs: 'About Us',
+      careers: 'Careers',
+      press: 'Press',
+      blog: 'Blog',
+      support: 'Support',
+      helpCenter: 'Help Center',
+      contactUs: 'Contact Us',
+      safetyResource: 'Safety Resource',
+      cancellationOptions: 'Cancellation Options',
+      legal: 'Legal',
+      privacyPolicy: 'Privacy Policy',
+      termsOfService: 'Terms of Service',
+      cookiePolicy: 'Cookie Policy',
+      accessibility: 'Accessibility',
+      allRightsReserved: 'All rights reserved.',
+    },
     // Search Bar
     search: {
       destination: 'Destination',
@@ -158,7 +178,7 @@ export const translations = {
     auth: {
       signIn: {
         title: 'Sign In',
-        subtitle: 'Welcome back to StayEase',
+        subtitle: 'Welcome back to Zenith',
         emailTab: 'Email',
         phoneTab: 'Phone',
         emailPlaceholder: 'Enter your email',
@@ -173,7 +193,7 @@ export const translations = {
       },
       register: {
         title: 'Create Account',
-        subtitle: 'Join StayEase today',
+        subtitle: 'Join Zenith today',
         emailTab: 'Email',
         phoneTab: 'Phone',
         firstName: 'First Name',
@@ -211,9 +231,9 @@ export const translations = {
       noBookings: 'No bookings found',
       startExploring: 'Start exploring and book your next stay!',
     },
-    // Admin Dashboard
-    adminDashboard: {
-      title: 'Admin Dashboard',
+    // Super Admin Dashboard
+    superAdminDashboard: {
+      title: 'Super Admin Dashboard',
       overview: 'Overview',
       totalProperties: 'Total Properties',
       totalBookings: 'Total Bookings',
@@ -251,6 +271,41 @@ export const translations = {
       dates: 'Dates',
       status: 'Status',
       amount: 'Amount',
+      failedLoadHotels: 'Failed to load hotels',
+      failedLoadBookings: 'Failed to load bookings',
+      failedAddHotel: 'Failed to add hotel',
+      failedDeleteHotel: 'Failed to delete hotel',
+    },
+// Guest Admin Dashboard
+    guestAdminDashboard: {
+      title: 'Guest Management',
+      subtitle: 'Approve or reject users',
+      totalUsers: 'Total Users',
+      approved: 'Approved',
+      pending: 'Pending',
+      searchPlaceholder: 'Search users...',
+      users: 'Users',
+      name: 'Name',
+      email: 'Email',
+      role: 'Role',
+      status: 'Status',
+      actions: 'Actions',
+      approve: 'Approve',
+      reject: 'Reject',
+      noActions: 'No actions',
+      loadingUsers: 'Loading users...',
+      failedLoadUsers: 'Failed to load users',
+      failedApprove: 'Failed to approve user',
+      failedReject: 'Failed to reject user',
+      searchFailed: 'Search failed',
+    },
+    // Not Found
+    notFound: {
+      title: 'Looks like you\'re lost at sea',
+      subtitle: 'The page you\'re looking for doesn\'t exist or has been moved. Let\'s get you back on course.',
+      backHome: 'Back to Home',
+      searchHotels: 'Search Hotels',
+      errorCode: 'Error Code',
     },
     // Common
     common: {
@@ -296,6 +351,26 @@ export const translations = {
       myBookings: 'Мои бронирования',
       adminDashboard: 'Панель администратора',
       userDashboard: 'Личный кабинет',
+    },
+    // Footer
+    footer: {
+      tagline: 'Ваш надёжный партнёр для поиска и бронирования идеального жилья по всему миру.',
+      company: 'Компания',
+      aboutUs: 'О нас',
+      careers: 'Карьера',
+      press: 'Пресса',
+      blog: 'Блог',
+      support: 'Поддержка',
+      helpCenter: 'Центр помощи',
+      contactUs: 'Связаться с нами',
+      safetyResource: 'Ресурсы безопасности',
+      cancellationOptions: 'Варианты отмены',
+      legal: 'Правовая информация',
+      privacyPolicy: 'Политика конфиденциальности',
+      termsOfService: 'Условия использования',
+      cookiePolicy: 'Политика cookie',
+      accessibility: 'Доступность',
+      allRightsReserved: 'Все права защищены.',
     },
     // Search Bar
     search: {
@@ -440,7 +515,7 @@ export const translations = {
     auth: {
       signIn: {
         title: 'Войти',
-        subtitle: 'Добро пожаловать в StayEase',
+        subtitle: 'Добро пожаловать в Zenith',
         emailTab: 'Email',
         phoneTab: 'Телефон',
         emailPlaceholder: 'Введите ваш email',
@@ -455,7 +530,7 @@ export const translations = {
       },
       register: {
         title: 'Создать аккаунт',
-        subtitle: 'Присоединяйтесь к StayEase сегодня',
+        subtitle: 'Присоединяйтесь к Zenith сегодня',
         emailTab: 'Email',
         phoneTab: 'Телефон',
         firstName: 'Имя',
@@ -493,9 +568,9 @@ export const translations = {
       noBookings: 'Бронирования не найдены',
       startExploring: 'Начните исследовать и забронируйте ваше следующее пребывание!',
     },
-    // Admin Dashboard
-    adminDashboard: {
-      title: 'Панель администратора',
+    // Super Admin Dashboard
+    superAdminDashboard: {
+      title: 'Панель суперадминистратора',
       overview: 'Обзор',
       totalProperties: 'Всего объектов',
       totalBookings: 'Всего бронирований',
@@ -533,6 +608,41 @@ export const translations = {
       dates: 'Даты',
       status: 'Статус',
       amount: 'Сумма',
+      failedLoadHotels: 'Не удалось загрузить отели',
+      failedLoadBookings: 'Не удалось загрузить бронирования',
+      failedAddHotel: 'Не удалось добавить отель',
+      failedDeleteHotel: 'Не удалось удалить отель',
+    },
+    // Guest Admin Dashboard
+    guestAdminDashboard: {
+      title: 'Управление гостями',
+      subtitle: 'Подтверждение или отклонение пользователей',
+      totalUsers: 'Всего пользователей',
+      approved: 'Подтверждённые',
+      pending: 'Ожидающие',
+      searchPlaceholder: 'Поиск пользователей...',
+      users: 'Пользователи',
+      name: 'Имя',
+      email: 'Email',
+      role: 'Роль',
+      status: 'Статус',
+      actions: 'Действия',
+      approve: 'Подтвердить',
+      reject: 'Отклонить',
+      noActions: 'Нет действий',
+      loadingUsers: 'Загрузка пользователей...',
+      failedLoadUsers: 'Не удалось загрузить пользователей',
+      failedApprove: 'Не удалось подтвердить пользователя',
+      failedReject: 'Не удалось отклонить пользователя',
+      searchFailed: 'Ошибка поиска',
+    },
+    // Not Found
+    notFound: {
+      title: 'Похоже, вы заблудились',
+      subtitle: 'Страница, которую вы ищете, не существует или была перемещена. Давайте вернёмся на правильный путь.',
+      backHome: 'На главную',
+      searchHotels: 'Поиск отелей',
+      errorCode: 'Код ошибки',
     },
     // Common
     common: {
@@ -578,6 +688,26 @@ export const translations = {
       myBookings: 'Mening bandlovlarim',
       adminDashboard: 'Administrator paneli',
       userDashboard: 'Shaxsiy kabinet',
+    },
+    // Footer
+    footer: {
+      tagline: 'Dunyo bo\'ylab mukammal turar joy topish va bron qilish uchun ishonchli hamkoringiz.',
+      company: 'Kompaniya',
+      aboutUs: 'Biz haqimizda',
+      careers: 'Karyera',
+      press: 'Matbuot',
+      blog: 'Blog',
+      support: 'Yordam',
+      helpCenter: 'Yordam markazi',
+      contactUs: 'Biz bilan bog\'lanish',
+      safetyResource: 'Xavfsizlik resurslari',
+      cancellationOptions: 'Bekor qilish variantlari',
+      legal: 'Huquqiy ma\'lumot',
+      privacyPolicy: 'Maxfiylik siyosati',
+      termsOfService: 'Foydalanish shartlari',
+      cookiePolicy: 'Cookie siyosati',
+      accessibility: 'Imkoniyatlar',
+      allRightsReserved: 'Barcha huquqlar himoyalangan.',
     },
     // Search Bar
     search: {
@@ -722,7 +852,7 @@ export const translations = {
     auth: {
       signIn: {
         title: 'Kirish',
-        subtitle: 'StayEase ga xush kelibsiz',
+        subtitle: 'Zenith ga xush kelibsiz',
         emailTab: 'Email',
         phoneTab: 'Telefon',
         emailPlaceholder: 'Emailingizni kiriting',
@@ -737,7 +867,7 @@ export const translations = {
       },
       register: {
         title: 'Akkaunt yaratish',
-        subtitle: "Bugun StayEase ga qo'shiling",
+        subtitle: "Bugun Zenith ga qo'shiling",
         emailTab: 'Email',
         phoneTab: 'Telefon',
         firstName: 'Ism',
@@ -775,9 +905,9 @@ export const translations = {
       noBookings: 'Bronlar topilmadi',
       startExploring: "Kashf qilishni boshlang va keyingi qolishingizni bron qiling!",
     },
-    // Admin Dashboard
-    adminDashboard: {
-      title: 'Administrator paneli',
+    // Super Admin Dashboard
+    superAdminDashboard: {
+      title: 'Super Administrator paneli',
       overview: 'Umumiy ma\'lumot',
       totalProperties: 'Jami mulklar',
       totalBookings: 'Jami bronlar',
@@ -815,6 +945,41 @@ export const translations = {
       dates: 'Sanalar',
       status: 'Holat',
       amount: 'Summa',
+      failedLoadHotels: 'Mehmonxonalarni yuklab bo\'lmadi',
+      failedLoadBookings: 'Bronlarni yuklab bo\'lmadi',
+      failedAddHotel: 'Mehmonxona qo\'shib bo\'lmadi',
+      failedDeleteHotel: 'Mehmonxonani o\'chirib bo\'lmadi',
+    },
+    // Guest Admin Dashboard
+    guestAdminDashboard: {
+      title: 'Mehmonlarni boshqarish',
+      subtitle: 'Foydalanuvchilarni tasdiqlash yoki rad etish',
+      totalUsers: 'Jami foydalanuvchilar',
+      approved: 'Tasdiqlangan',
+      pending: 'Kutilmoqda',
+      searchPlaceholder: 'Foydalanuvchilarni qidirish...',
+      users: 'Foydalanuvchilar',
+      name: 'Ism',
+      email: 'Email',
+      role: 'Rol',
+      status: 'Holat',
+      actions: 'Amallar',
+      approve: 'Tasdiqlash',
+      reject: 'Rad etish',
+      noActions: 'Amallar mavjud emas',
+      loadingUsers: 'Foydalanuvchilar yuklanmoqda...',
+      failedLoadUsers: 'Foydalanuvchilarni yuklab bo\'lmadi',
+      failedApprove: 'Foydalanuvchini tasdiqlab bo\'lmadi',
+      failedReject: 'Foydalanuvchini rad etib bo\'lmadi',
+      searchFailed: 'Qidiruv muvaffaqiyatsiz',
+    },
+    // Not Found
+    notFound: {
+      title: 'Siz yo\'l yo\'qotganga o\'xshaysiz',
+      subtitle: 'Siz qidirayotgan sahifa mavjud emas yoki ko\'chirilgan. Keling, to\'g\'ri yo\'lga qaytaylik.',
+      backHome: 'Bosh sahifaga',
+      searchHotels: 'Mehmonxona qidirish',
+      errorCode: 'Xato kodi',
     },
     // Common
     common: {

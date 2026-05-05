@@ -273,7 +273,7 @@ export function Home() {
               Why Book With Us
             </h2>
             <p className="text-lg text-[#64748B]">
-              Experience the StayEase advantage
+              Experience the Zenith advantage
             </p>
           </motion.div>
 

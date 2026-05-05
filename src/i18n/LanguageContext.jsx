@@ -14,13 +14,13 @@ export const useLanguage = () => {
 export const LanguageProvider = ({ children }) => {
   const [language, setLanguage] = useState(() => {
     // Get saved language from localStorage or default to 'en'
-    const savedLanguage = localStorage.getItem('stayease_language');
+    const savedLanguage = localStorage.getItem('zenith_language');
     return savedLanguage || 'en';
   });
 
   useEffect(() => {
     // Save language preference to localStorage
-    localStorage.setItem('stayease_language', language);
+    localStorage.setItem('zenith_language', language);
   }, [language]);
 
   const t = (key) => {

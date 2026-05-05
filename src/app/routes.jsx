@@ -9,7 +9,10 @@ import { BookingSuccess } from "./pages/BookingSuccess";
 import { SignIn } from "./pages/SignIn";
 import { Register } from "./pages/Register";
 import { UserDashboard } from "./pages/UserDashboard";
-import { AdminDashboard } from "./pages/AdminDashboard";
+import { SuperAdminDashboard } from "./pages/admin/SuperAdminDashboard";
+import { GuestAdminDashboard } from "./pages/admin/GuestAdminDashboard";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import { NotFound } from "./pages/NotFound";
 
 // Root component that wraps everything with LanguageProvider
 function RootLayout({ children }) {
@@ -31,7 +34,23 @@ export const router = createBrowserRouter([
       { path: "booking/:id", Component: Booking },
       { path: "booking-success", Component: BookingSuccess },
       { path: "dashboard", Component: UserDashboard },
-      { path: "admin", Component: AdminDashboard },
+      {
+        path: "/admin",
+        element: (
+          // <ProtectedRoute allowedRoles={["admin"]}>
+            <GuestAdminDashboard />
+          // </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/super-admin",
+        element: (
+          // <ProtectedRoute allowedRoles={["super_admin"]}>
+            <SuperAdminDashboard />
+          // </ProtectedRoute>
+        ),
+      },
+      { path: "*", Component: NotFound },
     ],
   },
   {
