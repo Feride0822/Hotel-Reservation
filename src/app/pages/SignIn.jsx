@@ -66,20 +66,26 @@ export function SignIn() {
       if (user) {
         localStorage.setItem("user", JSON.stringify(user));
       }
-// if token exists, navigate to dashboard, else show error 
+      if (user?.person_type) {
+        localStorage.setItem("person_type", user.person_type);
+      }
+      // if token exists, navigate to dashboard, else show error
       if (token) {
         navigate("/dashboard");
       } else {
         setError("Invalid server response: no token received");
       }
     } catch (err) {
-      console.error("LOGIN ERROR:", err.response?.data || err);
-
-      setError(
-        err.response?.data?.message ||
-          err.response?.data?.error ||
-          "Login failed. Please try again.",
-      );
+      const data = err.response?.data;
+      if (data?.detail && Array.isArray(data.detail)) {
+        setError(data.detail.map((e) => e.msg).join(", "));
+      } else if (typeof data?.detail === "string") {
+        setError(data.detail);
+      } else {
+        setError(
+          data?.message || data?.error || "Login failed. Please try again.",
+        );
+      }
     } finally {
       setLoading(false);
     }

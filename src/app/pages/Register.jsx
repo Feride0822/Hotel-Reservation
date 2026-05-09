@@ -30,10 +30,10 @@ export function Register() {
     lastName: "",
     email: "",
     phone: "",
-    countryCode: "+1",
-    country: "",
     password: "",
     confirmPassword: "",
+    country: "",
+    countryCode: "",
     otp: "",
   });
 
@@ -41,36 +41,57 @@ export function Register() {
     e.preventDefault();
     setError("");
 
+    // confirm password check
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match");
+      return;
+    }
+
+    // terms check
+    if (!agreeToTerms) {
+      setError("You must accept the terms");
       return;
     }
 
     try {
       setLoading(true);
 
+      // backend swagger payload
       const payload = {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
-        phone: formData.countryCode + formData.phone,
-        country: formData.country,
         password: formData.password,
-        method: registerMethod,
+        phone: formData.phone || null,
+        country: formData.country,
+        // terms_accepted: agreeToTerms,
       };
 
       const res = await registerWithEmail(payload);
-      console.log("REGISTER RESPONSE:", response);
-      if (res.data.success) {
-        localStorage.setItem("token", res.data.token);
-        localStorage.setItem("user", JSON.stringify(res.data.user));
 
-        navigate("/dashboard");
-      } else {
-        setError(res.data.message || "Registration failed");
-      }
+      console.log("REGISTER RESPONSE:", res);
+
+      if (res?.token) localStorage.setItem("token", res.token);
+      if (res?.user) localStorage.setItem("user", JSON.stringify(res.user));
+
+      navigate("/signin");
     } catch (err) {
-      setError(err.response?.data?.message || "Server error");
+      const data = err.response?.data;
+      console.log("FULL ERROR:", JSON.stringify(err.response?.data, null, 2));
+
+      if (data?.detail && Array.isArray(data.detail)) {
+        setError(data.detail.map((e) => e.msg).join(", "));
+      } else if (typeof data?.detail === "string") {
+        setError(data.detail);
+      } else if (Array.isArray(data)) {
+        setError(data.map((e) => e.msg).join(", "));
+      } else {
+        setError(
+          data?.message ||
+            data?.error ||
+            "Registration failed. Please try again.",
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -398,14 +419,48 @@ export function Register() {
                           countryCode: e.target.value,
                         })
                       }
+                      required
                       className="w-24 px-3 py-3.5 border-2 border-[#E2E8F0] rounded-xl focus:outline-none focus:border-[#0071C2] bg-white"
                     >
-                      <option value="+1">+1</option>
-                      <option value="+44">+44</option>
-                      <option value="+91">+91</option>
-                      <option value="+86">+86</option>
-                      <option value="+998">+998</option>
-                      <option value="+7">+7</option>
+                      <option value="" disabled>
+                        Code
+                      </option>
+                      <option value="+93">🇦🇫 +93</option>
+                      <option value="+61">🇦🇺 +61</option>
+                      <option value="+994">🇦🇿 +994</option>
+                      <option value="+375">🇧🇾 +375</option>
+                      <option value="+55">🇧🇷 +55</option>
+                      <option value="+1">🇨🇦 +1</option>
+                      <option value="+86">🇨🇳 +86</option>
+                      <option value="+20">🇪🇬 +20</option>
+                      <option value="+33">🇫🇷 +33</option>
+                      <option value="+49">🇩🇪 +49</option>
+                      <option value="+91">🇮🇳 +91</option>
+                      <option value="+62">🇮🇩 +62</option>
+                      <option value="+98">🇮🇷 +98</option>
+                      <option value="+964">🇮🇶 +964</option>
+                      <option value="+39">🇮🇹 +39</option>
+                      <option value="+81">🇯🇵 +81</option>
+                      <option value="+7">🇰🇿 +7</option>
+                      <option value="+996">🇰🇬 +996</option>
+                      <option value="+60">🇲🇾 +60</option>
+                      <option value="+52">🇲🇽 +52</option>
+                      <option value="+31">🇳🇱 +31</option>
+                      <option value="+92">🇵🇰 +92</option>
+                      <option value="+48">🇵🇱 +48</option>
+                      <option value="+7">🇷🇺 +7</option>
+                      <option value="+966">🇸🇦 +966</option>
+                      <option value="+82">🇰🇷 +82</option>
+                      <option value="+34">🇪🇸 +34</option>
+                      <option value="+992">🇹🇯 +992</option>
+                      <option value="+993">🇹🇲 +993</option>
+                      <option value="+90">🇹🇷 +90</option>
+                      <option value="+380">🇺🇦 +380</option>
+                      <option value="+971">🇦🇪 +971</option>
+                      <option value="+44">🇬🇧 +44</option>
+                      <option value="+1">🇺🇸 +1</option>
+                      <option value="+998">🇺🇿 +998</option>
+                      <option value="+84">🇻🇳 +84</option>
                     </select>
                     <div className="relative flex-1">
                       <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#64748B]" />
@@ -482,7 +537,7 @@ export function Register() {
             {/* Country */}
             <div>
               <label className="block text-sm font-semibold text-[#0F172A] mb-2">
-                {t("adminDashboard.country")}
+                {t("guestAdminDashboard.country")}
               </label>
               <div className="relative">
                 <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#64748B]" />
@@ -495,16 +550,42 @@ export function Register() {
                   className="w-full pl-12 pr-4 py-3.5 border-2 border-[#E2E8F0] rounded-xl focus:outline-none focus:border-[#0071C2] bg-white appearance-none"
                 >
                   <option value="">Select your country</option>
-                  <option value="US">United States</option>
-                  <option value="UK">United Kingdom</option>
-                  <option value="CA">Canada</option>
+                  <option value="AF">Afghanistan</option>
                   <option value="AU">Australia</option>
+                  <option value="AZ">Azerbaijan</option>
+                  <option value="BY">Belarus</option>
+                  <option value="BR">Brazil</option>
+                  <option value="CA">Canada</option>
+                  <option value="CN">China</option>
+                  <option value="EG">Egypt</option>
                   <option value="FR">France</option>
                   <option value="DE">Germany</option>
                   <option value="IN">India</option>
-                  <option value="CN">China</option>
+                  <option value="ID">Indonesia</option>
+                  <option value="IR">Iran</option>
+                  <option value="IQ">Iraq</option>
+                  <option value="IT">Italy</option>
+                  <option value="JP">Japan</option>
+                  <option value="KZ">Kazakhstan</option>
+                  <option value="KG">Kyrgyzstan</option>
+                  <option value="MY">Malaysia</option>
+                  <option value="MX">Mexico</option>
+                  <option value="NL">Netherlands</option>
+                  <option value="PK">Pakistan</option>
+                  <option value="PL">Poland</option>
                   <option value="RU">Russia</option>
+                  <option value="SA">Saudi Arabia</option>
+                  <option value="KR">South Korea</option>
+                  <option value="ES">Spain</option>
+                  <option value="TJ">Tajikistan</option>
+                  <option value="TM">Turkmenistan</option>
+                  <option value="TR">Turkey</option>
+                  <option value="UA">Ukraine</option>
+                  <option value="AE">United Arab Emirates</option>
+                  <option value="GB">United Kingdom</option>
+                  <option value="US">United States</option>
                   <option value="UZ">Uzbekistan</option>
+                  <option value="VN">Vietnam</option>
                 </select>
               </div>
             </div>
@@ -527,7 +608,11 @@ export function Register() {
                 </span>
               </label>
             </div>
-
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-[#EF4444] text-center">
+                {error}
+              </div>
+            )}
             {/* Create Account Button */}
             <button
               type="submit"

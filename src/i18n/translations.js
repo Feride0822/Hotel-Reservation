@@ -138,6 +138,7 @@ tagline: 'Your trusted partner for finding and booking the perfect accommodation
     // Booking
     booking: {
       title: 'Complete Your Booking',
+      subtitle: 'Just a few more steps to secure your stay',
       yourDetails: 'Your Details',
       firstName: 'First Name',
       lastName: 'Last Name',
@@ -152,6 +153,8 @@ tagline: 'Your trusted partner for finding and booking the perfect accommodation
       cardNumber: 'Card Number',
       expiryDate: 'Expiry Date',
       cvv: 'CVV',
+      paysec: 'Your payment is secure',
+      secmsg: 'All transactions are encrypted and secure. We never store your full card details.',
       completeBooking: 'Complete Booking',
       bookingSummary: 'Booking Summary',
       checkIn: 'Check-in',
@@ -164,6 +167,7 @@ tagline: 'Your trusted partner for finding and booking the perfect accommodation
       taxes: 'Taxes & Fees',
       total: 'Total',
       nights: 'nights',
+      cancellation: 'Free cancellation up to 24 hours before check-in'
     },
     // Booking Success
     bookingSuccess: {
@@ -298,6 +302,7 @@ tagline: 'Your trusted partner for finding and booking the perfect accommodation
       failedApprove: 'Failed to approve user',
       failedReject: 'Failed to reject user',
       searchFailed: 'Search failed',
+      country: 'Country',
     },
     // Not Found
     notFound: {
@@ -475,6 +480,7 @@ tagline: 'Your trusted partner for finding and booking the perfect accommodation
     // Booking
     booking: {
       title: 'Завершите бронирование',
+      subtitle: 'Всего несколько шагов, чтобы обеспечить ваше пребывание',
       yourDetails: 'Ваши данные',
       firstName: 'Имя',
       lastName: 'Фамилия',
@@ -489,6 +495,8 @@ tagline: 'Your trusted partner for finding and booking the perfect accommodation
       cardNumber: 'Номер карты',
       expiryDate: 'Срок действия',
       cvv: 'CVV',
+      paysec: 'Ваш платеж защищён',
+      secsg: 'Все транзакции зашифрованы и безопасны. Мы никогда не храним полные данные вашей карты.',
       completeBooking: 'Завершить бронирование',
       bookingSummary: 'Сводка бронирования',
       checkIn: 'Заезд',
@@ -501,6 +509,7 @@ tagline: 'Your trusted partner for finding and booking the perfect accommodation
       taxes: 'Налоги и сборы',
       total: 'Итого',
       nights: 'ночей',
+      cancellation: 'Бесплатная отмена за 24 часа до заезда'
     },
     // Booking Success
     bookingSuccess: {
@@ -635,6 +644,7 @@ tagline: 'Your trusted partner for finding and booking the perfect accommodation
       failedApprove: 'Не удалось подтвердить пользователя',
       failedReject: 'Не удалось отклонить пользователя',
       searchFailed: 'Ошибка поиска',
+      country: 'Страна',
     },
     // Not Found
     notFound: {
@@ -812,6 +822,7 @@ tagline: 'Your trusted partner for finding and booking the perfect accommodation
     // Booking
     booking: {
       title: 'Bronni yakunlang',
+      subtitle: "Faqat bir necha qadamda turar joyingizni ta'minlang",
       yourDetails: "Ma'lumotlaringiz",
       firstName: 'Ism',
       lastName: 'Familiya',
@@ -826,6 +837,8 @@ tagline: 'Your trusted partner for finding and booking the perfect accommodation
       cardNumber: 'Karta raqami',
       expiryDate: 'Amal qilish muddati',
       cvv: 'CVV',
+      paysec: 'Sizning to\'lovingiz xavfsiz',
+      secmsg: 'Barcha tranzaktsiyalar shifrlangan va xavfsiz. Biz hech qachon kartangizning to\'liq ma\'lumotlarini saqlamaymiz.',
       completeBooking: 'Bronni yakunlash',
       bookingSummary: 'Bron xulosasi',
       checkIn: 'Kelish',
@@ -838,6 +851,7 @@ tagline: 'Your trusted partner for finding and booking the perfect accommodation
       taxes: "Soliqlar va to'lovlar",
       total: 'Jami',
       nights: 'kechalar',
+      cancellation: 'Kelishdan 24 soat oldin bepul bekor qilish'
     },
     // Booking Success
     bookingSuccess: {
@@ -972,6 +986,7 @@ tagline: 'Your trusted partner for finding and booking the perfect accommodation
       failedApprove: 'Foydalanuvchini tasdiqlab bo\'lmadi',
       failedReject: 'Foydalanuvchini rad etib bo\'lmadi',
       searchFailed: 'Qidiruv muvaffaqiyatsiz',
+      country: 'Mamlakat',
     },
     // Not Found
     notFound: {

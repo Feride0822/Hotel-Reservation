@@ -1,20 +1,21 @@
-// api/userService.js
 import api from "./api";
 
-// Get all users
-export const getUsers = async (search = "") => {
-  const response = await api.get(`/users?search=${search}`);
-  return response.data;
+// GET /users — list all users (super admin / guest admin)
+export const getUsers = async (search = "", page = 1, limit = 20) => {
+  const params = { page, limit };
+  if (search) params.search = search;
+  const res = await api.get("/users", { params });
+  return res.data;
 };
 
-// Approve user
-export const approveUser = async (id) => {
-  const response = await api.patch(`/users/${id}/approve`);
-  return response.data;
+// PATCH /users/{user_id}/approve
+export const approveUser = async (userId) => {
+  const res = await api.patch(`/users/${userId}/approve`);
+  return res.data;
 };
 
-// Reject user
-export const rejectUser = async (id) => {
-  const response = await api.patch(`/users/${id}/reject`);
-  return response.data;
+// PATCH /users/{user_id}/reject
+export const rejectUser = async (userId) => {
+  const res = await api.patch(`/users/${userId}/reject`);
+  return res.data;
 };

@@ -1,22 +1,30 @@
-// api/hotelService.js
 import api from "./api";
 
-export const getHotels = async (search = "") => {
-  const res = await api.get(`/hotels?search=${search}`);
+// GET /hotels
+export const getHotels = async (params = {}) => {
+  const res = await api.get("/hotels", { params });
+  return res.data; // { hotels, total, page, totalPages }
+};
+
+// GET /hotels/:id
+export const getHotel = async (hotelId) => {
+  const res = await api.get(`/hotels/${hotelId}`);
   return res.data;
 };
 
+// POST /hotels
 export const createHotel = async (data) => {
   const res = await api.post("/hotels", data);
   return res.data;
 };
 
-export const updateHotel = async (id, data) => {
-  const res = await api.put(`/hotels/${id}`, data);
+// PUT /hotels/:id
+export const updateHotel = async (hotelId, data) => {
+  const res = await api.put(`/hotels/${hotelId}`, data);
   return res.data;
 };
 
-export const deleteHotel = async (id) => {
-  const res = await api.delete(`/hotels/${id}`);
-  return res.data;
+// DELETE /hotels/:id
+export const deleteHotel = async (hotelId) => {
+  await api.delete(`/hotels/${hotelId}`);
 };

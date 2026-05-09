@@ -1,13 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router";
 import { CreditCard, Lock } from "lucide-react";
 import { BookingSummary } from "../components/BookingSummary";
 import { useLanguage } from "../../i18n/LanguageContext";
+import api from "../../api/api";
 
 export function Booking() {
   const navigate = useNavigate();
   const { id } = useParams();
   const { t } = useLanguage();
+
+  const [booking, setBooking] = useState(null);
+  const [loading, setLoading] = useState(true);
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -20,20 +25,45 @@ export function Booking() {
     cvv: "",
   });
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    api
+      .get(`/booking/preview/${id}`)
+      .then((res) => {
+        setBooking(res.data);
+      })
+      .catch((err) => {
+        console.error(err);
+      })
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    navigate("/booking-success");
+
+    try {
+      await api.post("/booking", {
+        hotelId: id,
+        ...formData,
+      });
+
+      navigate("/booking-success");
+    } catch (err) {
+      console.error(err);
+      alert("Booking failed");
+    }
   };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  if (loading) return <p className="p-10">Loading...</p>;
+
   return (
     <div className="min-h-screen bg-background pt-24 pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-3xl md:text-4xl font-bold text-[#0F172A] mb-2">{t('booking.title')}</h1>
-        <p className="text-[#64748B] mb-8">Just a few more steps to secure your stay</p>
+        <p className="text-[#64748B] mb-8">{t('booking.subtitle')}</p>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Booking Form */}
@@ -54,7 +84,7 @@ export function Booking() {
                       onChange={handleChange}
                       required
                       className="w-full px-4 py-3 border border-[#E2E8F0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0071C2]"
-                      placeholder="John"
+                      placeholder="First Name"
                     />
                   </div>
                   <div>
@@ -68,7 +98,7 @@ export function Booking() {
                       onChange={handleChange}
                       required
                       className="w-full px-4 py-3 border border-[#E2E8F0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0071C2]"
-                      placeholder="Doe"
+                      placeholder="Last Name"
                     />
                   </div>
                 </div>
@@ -84,7 +114,7 @@ export function Booking() {
                     onChange={handleChange}
                     required
                     className="w-full px-4 py-3 border border-[#E2E8F0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0071C2]"
-                    placeholder="john.doe@example.com"
+                    placeholder="Email address"
                   />
                 </div>
 
@@ -99,7 +129,7 @@ export function Booking() {
                     onChange={handleChange}
                     required
                     className="w-full px-4 py-3 border border-[#E2E8F0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0071C2]"
-                    placeholder="+1 (555) 000-0000"
+                    placeholder="Phone"
                   />
                 </div>
 
@@ -198,10 +228,10 @@ export function Booking() {
                   <Lock className="w-5 h-5 text-[#22C55E] mt-0.5" />
                   <div>
                     <p className="text-sm font-semibold text-[#0F172A] mb-1">
-                      Your payment is secure
+                      {t('booking.paysec')}
                     </p>
                     <p className="text-xs text-[#64748B]">
-                      All transactions are encrypted and secure. We never store your full card details.
+                      {t('booking.secmsg')}
                     </p>
                   </div>
                 </div>
@@ -235,7 +265,7 @@ export function Booking() {
 
           {/* Booking Summary - Sticky on Desktop */}
           <div className="lg:col-span-1">
-            <BookingSummary />
+            <BookingSummary booking={booking}/>
           </div>
         </div>
       </div>

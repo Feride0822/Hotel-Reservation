@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Users, CheckCircle, XCircle, Search } from "lucide-react";
-import { StatusBadge } from "../../components/StatusBadge";
 import { useLanguage } from "../../../i18n/LanguageContext";
 import { getUsers, approveUser, rejectUser } from "../../../api/userService";
 
@@ -18,7 +17,7 @@ export function GuestAdminDashboard() {
       setLoading(true);
       const data = await getUsers(searchQuery);
       setUsers(data);
-    } catch (err) {
+    } catch {
       setError(t("guestAdminDashboard.failedLoadUsers"));
     } finally {
       setLoading(false);
@@ -30,19 +29,10 @@ export function GuestAdminDashboard() {
   }, []);
 
   // Search (optional: debounce later)
-  const handleSearch = async (e) => {
+  const handleSearch = (e) => {
     const value = e.target.value;
     setSearchQuery(value);
-
-    try {
-      setLoading(true);
-      const data = await getUsers(value);
-      setUsers(data);
-    } catch {
-      setError(t("guestAdminDashboard.searchFailed"));
-    } finally {
-      setLoading(false);
-    }
+    fetchUsers(value);
   };
 
   // Approve
@@ -50,7 +40,7 @@ export function GuestAdminDashboard() {
     try {
       setActionLoading(id);
       await approveUser(id);
-      await fetchUsers(); // refresh
+      await fetchUsers(searchQuery); // refresh
     } catch {
       setError(t("guestAdminDashboard.failedApprove"));
     } finally {
@@ -63,13 +53,18 @@ export function GuestAdminDashboard() {
     try {
       setActionLoading(id);
       await rejectUser(id);
-      await fetchUsers();
+      await fetchUsers(searchQuery); // refresh
     } catch {
       setError(t("guestAdminDashboard.failedReject"));
     } finally {
       setActionLoading(null);
     }
   };
+
+  const getStatus = (user) => {
+    if (user.is_active) return "approved";
+    return "pending";
+  }
 
   const stats = [
     {
@@ -108,12 +103,10 @@ export function GuestAdminDashboard() {
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {stats.map((stat, index) => (
-            <div key={index} className="bg-white rounded-2xl shadow-md p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center`}>
-                  <stat.icon className="w-6 h-6 text-white" />
-                </div>
+          {stats.map((stat, i) => (
+            <div key={i} className="bg-white rounded-2xl shadow-md p-6">
+              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center mb-4`}>
+                <stat.icon className="w-6 h-6 text-white" />
               </div>
               <p className="text-sm text-[#64748B] mb-1">{stat.label}</p>
               <p className="text-3xl font-bold text-[#0F172A]">{stat.value}</p>
@@ -164,15 +157,21 @@ export function GuestAdminDashboard() {
                 <tbody>
                   {users.map((user) => (
                     <tr key={user.id} className="border-b hover:bg-[#F8FAFC]">
-                      <td className="py-4 px-4">{user.name}</td>
+                      <td className="py-4 px-4">{user.firstName} {user.lastName}</td>
                       <td className="py-4 px-4">{user.email}</td>
-                      <td className="py-4 px-4">{user.role}</td>
+                      <td className="py-4 px-4 capitalize">{user.person_type}</td>
                       <td className="py-4 px-4">
-                        <StatusBadge status={user.status} />
-                      </td>
+                          <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                            status === "approved"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-yellow-100 text-yellow-700"
+                          }`}>
+                            {status}
+                          </span>
+                        </td>
 
                       <td className="py-4 px-4 flex gap-2">
-                        {user.status === "pending" ? (
+                        {!user.is_active ? (
                           <>
                             <button
                               onClick={() => handleApprove(user.id)}

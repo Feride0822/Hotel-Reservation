@@ -20,6 +20,17 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+  const handleClickOutside = (e) => {
+    if (!e.target.closest(".language-dropdown")) {
+      setLanguageMenuOpen(false);
+    }
+  };
+
+  document.addEventListener("click", handleClickOutside);
+  return () => document.removeEventListener("click", handleClickOutside);
+}, []);
+
   return (
     <motion.nav
       initial={{ y: -100 }}
@@ -74,7 +85,7 @@ export function Navbar() {
           {/* Language & Auth Buttons */}
           <div className="hidden md:flex items-center gap-3">
             {/* Language Selector */}
-            <div className="relative">
+            <div className="relative language-dropdown">
               <button
                 onClick={() => setLanguageMenuOpen(!languageMenuOpen)}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all duration-200 ${

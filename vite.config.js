@@ -31,4 +31,12 @@ export default defineConfig({
     },
   },
   assetsInclude: ['**/*.svg', '**/*.csv'],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://shark-app-uq4i6.ondigitalocean.app',
+        changeOrigin: true,
+      }
+    }
+  }
 })

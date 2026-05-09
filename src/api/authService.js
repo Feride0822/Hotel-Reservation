@@ -2,7 +2,7 @@ import api from "./api";
 
 export const loginWithEmail = async (data) => {
   const res = await api.post("/auth/login", data);
-  console.log("LOGIN RESPONSE:", res.data); // 👈 important for now
+  console.log("LOGIN RESPONSE:", res.data); 
   return res.data;
 };
 

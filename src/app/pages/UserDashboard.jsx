@@ -6,22 +6,25 @@ import { getUserProfile, updateUserProfile } from "../../api/authService";
 import { getUserBookings } from "../../api/bookingService";
 
 export function UserDashboard() {
-  const { t, language, changeLanguage, availableLanguages } = useLanguage();
+  const { t } = useLanguage();
 
   const [activeTab, setActiveTab] = useState("bookings");
   const [userInfo, setUserInfo] = useState(null);
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [saveError, setSaveError] = useState("");
+  const [saveSuccess, setSaveSuccess] = useState("");
 
-  // ✅ FETCH USER + BOOKINGS
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const user = await getUserProfile();
+        const user = await getUserProfile(); // GET /users/me
         const userBookings = await getUserBookings();
+        console.log("bookings response:", userBookings);
 
         setUserInfo(user);
-        setBookings(userBookings);
+        setBookings(userBookings.bookings || []); // adjust based on actual response structure
       } catch (err) {
         console.error("Dashboard error:", err);
       } finally {
@@ -34,12 +37,24 @@ export function UserDashboard() {
 
   // ✅ UPDATE PROFILE
   const handleSave = async () => {
+    setSaveError("");
+    setSaveSuccess("");
+    setSaveLoading(true);
     try {
-      await updateUserProfile(userInfo);
-      alert("Profile updated!");
+      // PUT /users/me
+      const updated = await updateUserProfile({
+        firstName: userInfo.firstName,
+        lastName: userInfo.lastName,
+        phone: userInfo.phone,
+        country: userInfo.country,
+      });
+      setUserInfo(updated);
+      setSaveSuccess("Profile updated successfully");
     } catch (err) {
       console.error(err);
-      alert("Update failed");
+      setSaveError("Failed to update profile");
+    } finally {
+      setSaveLoading(false);
     }
   };
 
@@ -72,16 +87,18 @@ export function UserDashboard() {
                   {userInfo.firstName} {userInfo.lastName}
                 </p>
                 <p className="text-sm text-gray-500">{userInfo.email}</p>
+                <p className="text-xs text-gray-400 mt-1 capitalize">{userInfo.person_type}</p>
               </div>
 
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`block w-full text-left p-3 rounded ${
-                    activeTab === tab.id ? "bg-blue-100" : ""
+                  className={`flex items-center gap-2 w-full text-left p-3 rounded-lg transition-colors ${
+                    activeTab === tab.id ? "bg-blue-100 text-blue-700 font-semibold" : "hover:bg-gray-50"
                   }`}
                 >
+                  <tab.icon size={16} />
                   {tab.label}
                 </button>
               ))}
@@ -106,14 +123,14 @@ export function UserDashboard() {
 
                       <div className="flex items-center text-sm text-gray-500">
                         <MapPin size={14} />
-                        {b.location}
+                        {b.location} •  Room {b.roomNumber}
                       </div>
 
                       <p>
-                        {b.checkIn} → {b.checkOut}
+                        {b.check_in} → {b.check_out} ({b.nt} nights)
                       </p>
 
-                      <StatusBadge status={b.status} />
+                      <div className="mt-2"><StatusBadge status={b.status} /></div>
 
                       <p className="font-bold mt-2">${b.total}</p>
                     </div>
@@ -128,37 +145,64 @@ export function UserDashboard() {
                 <h2 className="text-xl font-bold mb-4">
                   {t("userDashboard.personalInfo")}
                 </h2>
+                <div className="space-y-4">
+                <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">First Name</label>
+                    <input
+                      value={userInfo.firstName || ""}
+                      onChange={(e) => setUserInfo({ ...userInfo, firstName: e.target.value })}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
 
-                <input
-                  value={userInfo.firstName}
-                  onChange={(e) =>
-                    setUserInfo({ ...userInfo, firstName: e.target.value })
-                  }
-                  className="input"
-                  placeholder="First Name"
-                />
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">Last Name</label>
+                    <input
+                      value={userInfo.lastName || ""}
+                      onChange={(e) => setUserInfo({ ...userInfo, lastName: e.target.value })}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
 
-                <input
-                  value={userInfo.lastName}
-                  onChange={(e) =>
-                    setUserInfo({ ...userInfo, lastName: e.target.value })
-                  }
-                  className="input"
-                  placeholder="Last Name"
-                />
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">Email</label>
+                    <input
+                      value={userInfo.email || ""}
+                      disabled
+                      className="w-full px-4 py-3 border-2 border-gray-100 rounded-xl bg-gray-50 text-gray-400 cursor-not-allowed"
+                    />
+                    <p className="text-xs text-gray-400 mt-1">Email cannot be changed</p>
+                  </div>
 
-                <input
-                  value={userInfo.email}
-                  onChange={(e) =>
-                    setUserInfo({ ...userInfo, email: e.target.value })
-                  }
-                  className="input"
-                  placeholder="Email"
-                />
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">Phone</label>
+                    <input
+                      value={userInfo.phone || ""}
+                      onChange={(e) => setUserInfo({ ...userInfo, phone: e.target.value })}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
 
-                <button onClick={handleSave} className="btn-primary mt-4">
-                  Save Changes
-                </button>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">Country</label>
+                    <input
+                      value={userInfo.country || ""}
+                      onChange={(e) => setUserInfo({ ...userInfo, country: e.target.value })}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  {saveError && <p className="text-red-500 text-sm">{saveError}</p>}
+                  {saveSuccess && <p className="text-green-600 text-sm">{saveSuccess}</p>}
+
+                  <button
+                    onClick={handleSave}
+                    disabled={saveLoading}
+                    className="w-full py-3 bg-gradient-to-r from-[#003580] to-[#0071C2] text-white font-bold rounded-xl disabled:opacity-50"
+                  >
+                    {saveLoading ? "Saving..." : "Save Changes"}
+                  </button>
+                </div>
               </div>
             )}
 
