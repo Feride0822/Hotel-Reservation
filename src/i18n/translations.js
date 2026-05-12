@@ -75,6 +75,7 @@ tagline: 'Your trusted partner for finding and booking the perfect accommodation
       rating: 'Guest Rating',
       noResults: 'No properties found',
       tryAdjusting: 'Try adjusting your search or filters',
+      searching: 'Searching…',
     },
     // Filters
     filters: {
@@ -417,6 +418,7 @@ tagline: 'Your trusted partner for finding and booking the perfect accommodation
       rating: 'Рейтинг гостей',
       noResults: 'Объекты не найдены',
       tryAdjusting: 'Попробуйте изменить параметры поиска или фильтры',
+      searching: 'Поиск…',
     },
     // Filters
     filters: {
@@ -759,6 +761,7 @@ tagline: 'Your trusted partner for finding and booking the perfect accommodation
       rating: 'Mehmonlar reytingi',
       noResults: 'Mulklar topilmadi',
       tryAdjusting: "Qidiruv yoki filtrlarni o'zgartirishga harakat qiling",
+      searching: 'Qidirilmoqda…',
     },
     // Filters
     filters: {

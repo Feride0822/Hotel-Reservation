@@ -6,6 +6,12 @@ export const getHotels = async (params = {}) => {
   return res.data; // { hotels, total, page, totalPages }
 };
 
+// GET /search  — Elasticsearch full-text search
+export const searchHotels = async (params = {}) => {
+  const res = await api.get("/search", { params });
+  return res.data; // shape mirrors /hotels: { hotels, total, page, totalPages }
+};
+
 // GET /hotels/:id
 export const getHotel = async (hotelId) => {
   const res = await api.get(`/hotels/${hotelId}`);

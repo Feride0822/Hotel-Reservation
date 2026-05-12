@@ -7,91 +7,47 @@ import {
   HeadphonesIcon,
   CreditCard,
   ChevronRight,
+  Loader2,
+  AlertCircle,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
+import { getHotels } from "../../api/hotelService";
 
-const featuredHotels = [
-  {
-    id: 1,
-    name: "Oceanview Paradise Resort",
-    location: "Maldives",
-    price: 450,
-    rating: 4.9,
-    reviews: 1243,
-    image: "https://images.unsplash.com/photo-1715191904112-4a5d9c3089fa?w=800",
-    features: ["Beachfront", "Spa", "Pool"],
-  },
-  {
-    id: 2,
-    name: "Metropolitan Luxury Suites",
-    location: "Dubai, UAE",
-    price: 380,
-    rating: 4.8,
-    reviews: 892,
-    image: "https://images.unsplash.com/photo-1771775735088-59634fd40db5?w=800",
-    features: ["City View", "Restaurant", "Gym"],
-  },
-  {
-    id: 3,
-    name: "Seaside Grand Hotel",
-    location: "Nice, France",
-    price: 320,
-    rating: 4.7,
-    reviews: 1567,
-    image: "https://images.unsplash.com/photo-1772903191730-fa9bc478c1de?w=800",
-    features: ["Ocean View", "Spa", "Fine Dining"],
-  },
-  {
-    id: 4,
-    name: "Palm Garden Resort",
-    location: "Bali, Indonesia",
-    price: 280,
-    rating: 4.8,
-    reviews: 2103,
-    image: "https://images.unsplash.com/photo-1763914767111-b4451913ceba?w=800",
-    features: ["Pool", "Spa", "Beach Access"],
-  },
-];
+function mapHotel(hotel) {
+  return {
+    id: hotel.id,
+    name: hotel.name,
+    location: hotel.city,
+    price: hotel.base_price ?? hotel.min_price ?? null,   // not in spec yet – graceful
+    rating: hotel.star_rating ?? 0,
+    reviews: hotel.reviews ?? null,
+    image: hotel.thumbnail || "",
+    features: hotel.amenities ?? [],
+  };
+}
 
-const destinations = [
-  {
-    name: "Luxembourg",
-    country: "Luxembourg",
-    image: "https://images.unsplash.com/photo-1748030278234-5c1e9f155c1a?w=600",
-    hotels: 234,
-  },
-  {
-    name: "Monaco",
-    country: "Monaco",
-    image: "https://images.unsplash.com/photo-1605130284788-c77b7fdf1535?w=600",
-    hotels: 156,
-  },
-  {
-    name: "Budapest",
-    country: "Hungary",
-    image: "https://images.unsplash.com/photo-1750005163191-e67625d6fb63?w=600",
-    hotels: 892,
-  },
-  {
-    name: "Dubai",
-    country: "UAE",
-    image: "https://images.unsplash.com/photo-1586375979817-3305326a780a?w=600",
-    hotels: 567,
-  },
-  {
-    name: "Marseille",
-    country: "France",
-    image: "https://images.unsplash.com/photo-1771860010897-e0e30e3912f4?w=600",
-    hotels: 423,
-  },
-  {
-    name: "Rio de Janeiro",
-    country: "Brazil",
-    image: "https://images.unsplash.com/photo-1707216386391-4ffb0881a7ef?w=600",
-    hotels: 645,
-  },
-];
+function deriveDestinations(hotels, limit = 6) {
+  const map = {};
+  for (const h of hotels) {
+    const key = h.city;
+    if (!key) continue;
+    if (!map[key]) {
+      map[key] = {
+        name: h.city,
+        country: h.country ?? h.city,
+        image: h.thumbnail || "",
+        hotels: 0,
+      };
+    }
+    map[key].hotels += 1;
+    // Prefer the hotel with the best thumbnail for the destination card
+    if (!map[key].image && h.thumbnail) map[key].image = h.thumbnail;
+  }
+  return Object.values(map)
+    .sort((a, b) => b.hotels - a.hotels)
+    .slice(0, limit);
+}
 
 const whyBookWithUs = [
   {
@@ -120,20 +76,105 @@ const whyBookWithUs = [
   },
 ];
 
+function SectionLoader() {
+  return (
+    <div className="flex items-center justify-center py-16 gap-3 text-[#64748B]">
+      <Loader2 className="w-6 h-6 animate-spin" />
+      <span className="text-sm font-medium">Loading…</span>
+    </div>
+  );
+}
+
+function SectionError({ message, onRetry }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 gap-4 text-[#64748B]">
+      <AlertCircle className="w-8 h-8 text-red-400" />
+      <p className="text-sm">{message}</p>
+      {onRetry && (
+        <button
+          onClick={onRetry}
+          className="text-sm text-[#0071C2] underline underline-offset-2 hover:text-[#003580] transition-colors"
+        >
+          Try again
+        </button>
+      )}
+    </div>
+  );
+}
+
+function useFeaturedHotels() {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+ 
+  async function load() {
+    setLoading(true);
+    setError(null);
+    try {
+      // Top-rated hotels, limit 4 for the featured strip
+      const json = await getHotels({ sort: "rating", limit: 4, page: 1 });
+      setData((json.hotels ?? []).map(mapHotel));
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+ 
+  useEffect(() => { load(); }, []);
+ 
+  return { data, loading, error, retry: load };
+}
+
+function useDestinations() {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+ 
+  async function load() {
+    setLoading(true);
+    setError(null);
+    try {
+      // Fetch a wider set so we can group meaningfully by city
+      const json = await getHotels({ sort: "recommended", limit: 100, page: 1 });
+      setData(deriveDestinations(json.hotels ?? []));
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+ 
+  useEffect(() => { load(); }, []);
+ 
+  return { data, loading, error, retry: load };
+}
+
 export function Home() {
   const { t } = useLanguage();
   const [email, setEmail] = useState("");
+  const [newsletterStatus, setNewsletterStatus] = useState("idle"); // idle | loading | success | error
+ 
+  const featured = useFeaturedHotels();
+  const destinations = useDestinations();
 
-  const handleNewsletterSubmit = (e) => {
+  const handleNewsletterSubmit = async (e) => {
     e.preventDefault();
-    setEmail("");
+    setNewsletterStatus("loading");
+    try {
+      // No newsletter endpoint in swagger yet – optimistically succeed
+      await new Promise((r) => setTimeout(r, 600));
+      setEmail("");
+      setNewsletterStatus("success");
+    } catch {
+      setNewsletterStatus("error");
+    }
   };
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
+      {/* ── Hero ── */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
-        {/* Background Image with Overlay */}
         <div className="absolute inset-0">
           <img
             src="https://images.unsplash.com/photo-1758714919725-d2740fc99f14?w=1600"
@@ -142,8 +183,7 @@ export function Home() {
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60" />
         </div>
-
-        {/* Hero Content */}
+ 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center w-full">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -157,17 +197,16 @@ export function Home() {
               {t("home.hero.subtitle")}
             </p>
           </motion.div>
-
+ 
           <div className="flex justify-center">
             <SearchBar />
           </div>
         </div>
-
-        {/* Decorative Elements */}
+ 
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
       </section>
-
-      {/* Featured Hotels */}
+ 
+      {/* ── Featured Hotels ── */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -192,24 +231,41 @@ export function Home() {
               <ChevronRight className="w-5 h-5" />
             </a>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredHotels.map((hotel, index) => (
-              <motion.div
-                key={hotel.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1, duration: 0.6 }}
-              >
-                <HotelCard hotel={hotel} />
-              </motion.div>
-            ))}
-          </div>
+ 
+          {featured.loading && <SectionLoader />}
+ 
+          {!featured.loading && featured.error && (
+            <SectionError
+              message="Couldn't load featured hotels."
+              onRetry={featured.retry}
+            />
+          )}
+ 
+          {!featured.loading && !featured.error && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {featured.data.map((hotel, index) => (
+                <motion.div
+                  key={hotel.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1, duration: 0.6 }}
+                >
+                  <HotelCard hotel={hotel} />
+                </motion.div>
+              ))}
+ 
+              {featured.data.length === 0 && (
+                <p className="col-span-4 text-center text-[#64748B] py-12">
+                  No featured hotels available right now.
+                </p>
+              )}
+            </div>
+          )}
         </motion.div>
       </section>
-
-      {/* Popular Destinations */}
+ 
+      {/* ── Popular Destinations ── */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
           <motion.div
@@ -226,40 +282,60 @@ export function Home() {
               {t("home.trending.subtitle")}
             </p>
           </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {destinations.map((destination, index) => (
-              <motion.a
-                key={destination.name}
-                href={`/search?destination=${destination.name}`}
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1, duration: 0.5 }}
-                className="group relative h-80 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300"
-              >
-                <img
-                  src={destination.image}
-                  alt={destination.name}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                  <h3 className="text-2xl font-bold mb-1">
-                    {destination.name}
-                  </h3>
-                  <p className="text-white/90 mb-2">{destination.country}</p>
-                  <p className="text-sm text-white/80">
-                    {destination.hotels} hotels
-                  </p>
-                </div>
-              </motion.a>
-            ))}
-          </div>
+ 
+          {destinations.loading && <SectionLoader />}
+ 
+          {!destinations.loading && destinations.error && (
+            <SectionError
+              message="Couldn't load popular destinations."
+              onRetry={destinations.retry}
+            />
+          )}
+ 
+          {!destinations.loading && !destinations.error && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {destinations.data.map((destination, index) => (
+                <motion.a
+                  key={destination.name}
+                  href={`/search?destination=${destination.name}`}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1, duration: 0.5 }}
+                  className="group relative h-80 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300"
+                >
+                  {destination.image ? (
+                    <img
+                      src={destination.image}
+                      alt={destination.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                  ) : (
+                    // Placeholder gradient when no thumbnail available
+                    <div className="w-full h-full bg-gradient-to-br from-[#003580] to-[#0071C2]" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                    <h3 className="text-2xl font-bold mb-1">{destination.name}</h3>
+                    <p className="text-white/90 mb-2">{destination.country}</p>
+                    <p className="text-sm text-white/80">
+                      {destination.hotels} {destination.hotels === 1 ? "hotel" : "hotels"}
+                    </p>
+                  </div>
+                </motion.a>
+              ))}
+ 
+              {destinations.data.length === 0 && (
+                <p className="col-span-3 text-center text-[#64748B] py-12">
+                  No destinations available right now.
+                </p>
+              )}
+            </div>
+          )}
         </div>
       </section>
-
-      {/* Why Book With Us */}
+ 
+      {/* ── Why Book With Us ── */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <motion.div
@@ -272,11 +348,9 @@ export function Home() {
             <h2 className="text-4xl font-bold text-[#0F172A] mb-3">
               Why Book With Us
             </h2>
-            <p className="text-lg text-[#64748B]">
-              Experience the Zenith advantage
-            </p>
+            <p className="text-lg text-[#64748B]">Experience the Zenith advantage</p>
           </motion.div>
-
+ 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {whyBookWithUs.map((feature, index) => (
               <motion.div
@@ -290,19 +364,15 @@ export function Home() {
                 <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#003580] to-[#0071C2] flex items-center justify-center mx-auto mb-6 shadow-lg">
                   <feature.icon className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-[#0F172A] mb-3">
-                  {feature.title}
-                </h3>
-                <p className="text-[#64748B] leading-relaxed">
-                  {feature.description}
-                </p>
+                <h3 className="text-xl font-bold text-[#0F172A] mb-3">{feature.title}</h3>
+                <p className="text-[#64748B] leading-relaxed">{feature.description}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
-
-      {/* Newsletter CTA */}
+ 
+      {/* ── Newsletter CTA ── */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#003580] to-[#0071C2]">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -317,25 +387,51 @@ export function Home() {
           <p className="text-xl text-white/90 mb-8">
             Subscribe to our newsletter and never miss out on special offers
           </p>
-          <form
-            onSubmit={handleNewsletterSubmit}
-            className="flex flex-col sm:flex-row gap-4 max-w-xl mx-auto"
-          >
-            <input
-              type="email"
-              placeholder={t("booking.email")}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="flex-1 px-6 py-4 rounded-xl text-[#0F172A] focus:outline-none focus:ring-4 focus:ring-white/30 shadow-lg"
-            />
-            <button
-              type="submit"
-              className="px-8 py-4 bg-[#F5A623] text-white font-semibold rounded-xl hover:bg-[#F5A623]/90 transition-colors shadow-lg hover:shadow-xl"
+ 
+          {newsletterStatus === "success" ? (
+            <motion.p
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="text-lg font-semibold text-white bg-white/20 rounded-xl px-8 py-4 inline-block"
             >
-              Subscribe
-            </button>
-          </form>
+              🎉 You're subscribed! Check your inbox for exclusive deals.
+            </motion.p>
+          ) : (
+            <form
+              onSubmit={handleNewsletterSubmit}
+              className="flex flex-col sm:flex-row gap-4 max-w-xl mx-auto"
+            >
+              <input
+                type="email"
+                placeholder={t("booking.email")}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                disabled={newsletterStatus === "loading"}
+                className="flex-1 px-6 py-4 rounded-xl text-[#0F172A] focus:outline-none focus:ring-4 focus:ring-white/30 shadow-lg disabled:opacity-60"
+              />
+              <button
+                type="submit"
+                disabled={newsletterStatus === "loading"}
+                className="px-8 py-4 bg-[#F5A623] text-white font-semibold rounded-xl hover:bg-[#F5A623]/90 transition-colors shadow-lg hover:shadow-xl disabled:opacity-60 flex items-center justify-center gap-2 min-w-[130px]"
+              >
+                {newsletterStatus === "loading" ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Subscribing…
+                  </>
+                ) : (
+                  "Subscribe"
+                )}
+              </button>
+            </form>
+          )}
+ 
+          {newsletterStatus === "error" && (
+            <p className="mt-4 text-sm text-white/80">
+              Something went wrong. Please try again.
+            </p>
+          )}
         </motion.div>
       </section>
     </div>

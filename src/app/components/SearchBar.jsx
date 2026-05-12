@@ -1,67 +1,97 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { MapPin, Calendar, Users, Search } from "lucide-react";
 import { motion } from "motion/react";
 import { useLanguage } from "../../i18n/LanguageContext";
 
 export function SearchBar({ variant = "hero" }) {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { t } = useLanguage();
-  const [destination, setDestination] = useState("");
-  const [checkIn, setCheckIn] = useState("");
-  const [checkOut, setCheckOut] = useState("");
-  const [guests, setGuests] = useState(2);
+  // Pre-fill from current URL so the inline bar reflects the active search
+  const [destination, setDestination] = useState(
+    searchParams.get("q") ?? searchParams.get("destination") ?? ""
+  );
+  const [checkIn, setCheckIn]   = useState(searchParams.get("check_in")  ?? "");
+  const [checkOut, setCheckOut] = useState(searchParams.get("check_out") ?? "");
+  const [guests, setGuests]     = useState(Number(searchParams.get("guests")) || 2);
 
   const handleSearch = (e) => {
     e.preventDefault();
-    navigate(`/search?destination=${destination}&checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}`);
+ 
+    const params = new URLSearchParams();
+    if (destination) params.set("q", destination);          // /search reads "q"
+    if (checkIn)     params.set("check_in",  checkIn);      // Booking reads "check_in"
+    if (checkOut)    params.set("check_out", checkOut);     // Booking reads "check_out"
+    if (guests)      params.set("guests",    guests);
+ 
+    navigate(`/search?${params.toString()}`);
   };
+
+  const today = new Date().toISOString().split("T")[0];
 
   if (variant === "inline") {
     return (
-      <form onSubmit={handleSearch} className="bg-white rounded-xl shadow-md p-4 flex flex-wrap gap-3 items-end">
+      <form
+        onSubmit={handleSearch}
+        className="bg-white rounded-xl shadow-md p-4 flex flex-wrap gap-3 items-end"
+      >
         <div className="flex-1 min-w-[200px]">
-          <label className="block text-xs font-medium text-[#0F172A] mb-1.5">{t('search.destination')}</label>
+          <label className="block text-xs font-medium text-[#0F172A] mb-1.5">
+            {t("search.destination")}
+          </label>
           <div className="relative">
             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748B]" />
             <input
               type="text"
-              placeholder={t('search.destinationPlaceholder')}
+              placeholder={t("search.destinationPlaceholder")}
               value={destination}
               onChange={(e) => setDestination(e.target.value)}
               className="w-full pl-10 pr-3 py-2 border border-[#E2E8F0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0071C2] text-sm"
             />
           </div>
         </div>
-
+ 
         <div className="flex-1 min-w-[140px]">
-          <label className="block text-xs font-medium text-[#0F172A] mb-1.5">{t('search.checkIn')}</label>
+          <label className="block text-xs font-medium text-[#0F172A] mb-1.5">
+            {t("search.checkIn")}
+          </label>
           <div className="relative">
             <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748B]" />
             <input
               type="date"
               value={checkIn}
-              onChange={(e) => setCheckIn(e.target.value)}
+              min={today}
+              onChange={(e) => {
+                setCheckIn(e.target.value);
+                // Reset check-out if it's before new check-in
+                if (checkOut && e.target.value > checkOut) setCheckOut("");
+              }}
               className="w-full pl-10 pr-3 py-2 border border-[#E2E8F0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0071C2] text-sm"
             />
           </div>
         </div>
-
+ 
         <div className="flex-1 min-w-[140px]">
-          <label className="block text-xs font-medium text-[#0F172A] mb-1.5">{t('search.checkOut')}</label>
+          <label className="block text-xs font-medium text-[#0F172A] mb-1.5">
+            {t("search.checkOut")}
+          </label>
           <div className="relative">
             <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748B]" />
             <input
               type="date"
               value={checkOut}
+              min={checkIn || today}
               onChange={(e) => setCheckOut(e.target.value)}
               className="w-full pl-10 pr-3 py-2 border border-[#E2E8F0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0071C2] text-sm"
             />
           </div>
         </div>
-
+ 
         <div className="w-32">
-          <label className="block text-xs font-medium text-[#0F172A] mb-1.5">{t('search.guests')}</label>
+          <label className="block text-xs font-medium text-[#0F172A] mb-1.5">
+            {t("search.guests")}
+          </label>
           <div className="relative">
             <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748B]" />
             <select
@@ -69,24 +99,27 @@ export function SearchBar({ variant = "hero" }) {
               onChange={(e) => setGuests(Number(e.target.value))}
               className="w-full pl-10 pr-3 py-2 border border-[#E2E8F0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0071C2] text-sm appearance-none bg-white"
             >
-              {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
-                <option key={num} value={num}>{num} {num === 1 ? t('search.guests').slice(0, -1) : t('search.guests')}</option>
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
+                <option key={num} value={num}>
+                  {num} {num === 1 ? t("search.guests").slice(0, -1) : t("search.guests")}
+                </option>
               ))}
             </select>
           </div>
         </div>
-
+ 
         <button
           type="submit"
           className="px-6 py-2 bg-[#003580] text-white rounded-lg hover:bg-[#0071C2] transition-colors font-medium flex items-center gap-2 shadow-md hover:shadow-lg"
         >
           <Search className="w-4 h-4" />
-          <span className="hidden sm:inline">{t('search.search')}</span>
+          <span className="hidden sm:inline">{t("search.search")}</span>
         </button>
       </form>
     );
   }
-
+ 
+  // ── Hero variant ─────────────────────────────────────────────────────────────
   return (
     <motion.form
       initial={{ opacity: 0, y: 20 }}
@@ -97,12 +130,14 @@ export function SearchBar({ variant = "hero" }) {
     >
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         <div className="lg:col-span-1">
-          <label className="block text-sm font-semibold text-[#0F172A] mb-2">{t('search.destination')}</label>
+          <label className="block text-sm font-semibold text-[#0F172A] mb-2">
+            {t("search.destination")}
+          </label>
           <div className="relative">
             <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#64748B]" />
             <input
               type="text"
-              placeholder={t('search.destinationPlaceholder')}
+              placeholder={t("search.destinationPlaceholder")}
               value={destination}
               onChange={(e) => setDestination(e.target.value)}
               className="w-full pl-12 pr-4 py-3.5 border-2 border-[#E2E8F0] rounded-xl focus:outline-none focus:border-[#0071C2] transition-colors"
@@ -110,37 +145,48 @@ export function SearchBar({ variant = "hero" }) {
             />
           </div>
         </div>
-
+ 
         <div>
-          <label className="block text-sm font-semibold text-[#0F172A] mb-2">{t('search.checkIn')}</label>
+          <label className="block text-sm font-semibold text-[#0F172A] mb-2">
+            {t("search.checkIn")}
+          </label>
           <div className="relative">
             <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#64748B]" />
             <input
               type="date"
               value={checkIn}
-              onChange={(e) => setCheckIn(e.target.value)}
+              min={today}
+              onChange={(e) => {
+                setCheckIn(e.target.value);
+                if (checkOut && e.target.value > checkOut) setCheckOut("");
+              }}
               className="w-full pl-12 pr-4 py-3.5 border-2 border-[#E2E8F0] rounded-xl focus:outline-none focus:border-[#0071C2] transition-colors"
               required
             />
           </div>
         </div>
-
+ 
         <div>
-          <label className="block text-sm font-semibold text-[#0F172A] mb-2">{t('search.checkOut')}</label>
+          <label className="block text-sm font-semibold text-[#0F172A] mb-2">
+            {t("search.checkOut")}
+          </label>
           <div className="relative">
             <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#64748B]" />
             <input
               type="date"
               value={checkOut}
+              min={checkIn || today}
               onChange={(e) => setCheckOut(e.target.value)}
               className="w-full pl-12 pr-4 py-3.5 border-2 border-[#E2E8F0] rounded-xl focus:outline-none focus:border-[#0071C2] transition-colors"
               required
             />
           </div>
         </div>
-
+ 
         <div>
-          <label className="block text-sm font-semibold text-[#0F172A] mb-2">{t('search.guests')}</label>
+          <label className="block text-sm font-semibold text-[#0F172A] mb-2">
+            {t("search.guests")}
+          </label>
           <div className="relative">
             <Users className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#64748B]" />
             <select
@@ -148,20 +194,22 @@ export function SearchBar({ variant = "hero" }) {
               onChange={(e) => setGuests(Number(e.target.value))}
               className="w-full pl-12 pr-4 py-3.5 border-2 border-[#E2E8F0] rounded-xl focus:outline-none focus:border-[#0071C2] transition-colors appearance-none bg-white"
             >
-              {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
-                <option key={num} value={num}>{num} {num === 1 ? t('search.guests').slice(0, -1) : t('search.guests')}</option>
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
+                <option key={num} value={num}>
+                  {num} {num === 1 ? t("search.guests").slice(0, -1) : t("search.guests")}
+                </option>
               ))}
             </select>
           </div>
         </div>
       </div>
-
+ 
       <button
         type="submit"
         className="w-full md:w-auto px-12 py-4 bg-gradient-to-r from-[#003580] to-[#0071C2] text-white rounded-xl font-semibold hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-3 group"
       >
         <Search className="w-5 h-5 group-hover:scale-110 transition-transform" />
-        {t('search.search')} {t('nav.stays')}
+        {t("search.search")} {t("nav.stays")}
       </button>
     </motion.form>
   );

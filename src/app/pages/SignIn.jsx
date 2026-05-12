@@ -71,7 +71,14 @@ export function SignIn() {
       }
       // if token exists, navigate to dashboard, else show error
       if (token) {
-        navigate("/dashboard");
+        const personType = user?.person_type;
+        if (personType === "super_admin") {
+          navigate("/super-admin");
+        } else if (personType === "guest_admin") {
+          navigate("/admin");
+        } else {
+          navigate("/dashboard");
+        }
       } else {
         setError("Invalid server response: no token received");
       }

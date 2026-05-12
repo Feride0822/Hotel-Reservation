@@ -53,7 +53,7 @@ export function SuperAdminDashboard() {
   const fetchBookings = async () => {
     try {
       const data = await getBookings();
-      setBookings(data);
+      setBookings(data.bookings ?? []); // adjust based on actual response structure
     } catch {
       setError(t("superAdminDashboard.failedLoadBookings"));
     }

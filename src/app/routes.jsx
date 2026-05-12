@@ -33,21 +33,28 @@ export const router = createBrowserRouter([
       { path: "hotel/:id", Component: HotelDetail },
       { path: "booking/:id", Component: Booking },
       { path: "booking-success", Component: BookingSuccess },
-      { path: "dashboard", Component: UserDashboard },
       {
         path: "/admin",
         element: (
-          // <ProtectedRoute allowedRoles={["admin"]}>
-            <GuestAdminDashboard />
-          // </ProtectedRoute>
+          <ProtectedRoute allowedRoles={["admin"]}>
+          <GuestAdminDashboard />
+          </ProtectedRoute>
         ),
       },
       {
         path: "/super-admin",
         element: (
-          // <ProtectedRoute allowedRoles={["super_admin"]}>
-            <SuperAdminDashboard />
-          // </ProtectedRoute>
+          <ProtectedRoute allowedRoles={["super_admin"]}>
+          <SuperAdminDashboard />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "dashboard",
+        element: (
+          <ProtectedRoute allowedRoles={["user"]}>
+            <UserDashboard />
+          </ProtectedRoute>
         ),
       },
       { path: "*", Component: NotFound },

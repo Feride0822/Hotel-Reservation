@@ -16,7 +16,7 @@ export function GuestAdminDashboard() {
     try {
       setLoading(true);
       const data = await getUsers(searchQuery);
-      setUsers(data);
+      setUsers(data.users ?? []); // adjust based on actual response structure
     } catch {
       setError(t("guestAdminDashboard.failedLoadUsers"));
     } finally {
@@ -162,11 +162,11 @@ export function GuestAdminDashboard() {
                       <td className="py-4 px-4 capitalize">{user.person_type}</td>
                       <td className="py-4 px-4">
                           <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                            status === "approved"
+                            getStatus(user) === "approved"
                               ? "bg-green-100 text-green-700"
                               : "bg-yellow-100 text-yellow-700"
                           }`}>
-                            {status}
+                            {getStatus(user)}
                           </span>
                         </td>
 
